@@ -49,4 +49,18 @@ class TestMonth < Test::Unit::TestCase
     puts
     puts @m.format(:month)
   end
+
+  def test_color_format
+    puts @m.color_format(:week, 0)
+    puts @m.color_format(:week, 1)
+    puts @m.color_format(:month, 1)
+  end
+
+  def test_colors
+    m = Month.new(2011, 2, sunday: :yellow, saturday: :green)
+    puts
+    puts m.color_format(:week, 0)
+    m.colors = {sunday: :red, saturday: :blue}
+    puts m.color_format(:month, 1)
+  end
 end
