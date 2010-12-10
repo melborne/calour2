@@ -8,16 +8,16 @@ module Caline
   String.send(:include, Term::ANSIColor)
 
   class Month
+    @@holidays = {}
     attr_reader :year, :month, :last, :colors
     def initialize(year, month, colors={})
       @year = year || Date.today.year
       @month = month || Date.today.mon
       @first = Date.new(@year, @month, 1)
       @last = last_date(@year, @month)
-      @colors = { title: [:green,:yellow], today: :green,
+      @colors = { title: [:green,:yellow], today: [:green, :underline],
                   saturday: :cyan, sunday: :magenta, holiday: :red }
       @colors.update(colors)
-      @holidays = nil
     end
 
     def dates
@@ -50,7 +50,7 @@ module Caline
     end
 
     def holidays(code=:ja_ja)
-      @holidays = GCalendar.new(@year, @month).holidays(code)
+      @@holidays[@year] ||= GCalendar.new(@year).holidays(code)
     end
 
     private
@@ -66,15 +66,13 @@ module Caline
       ->w{
         w.map do |d|
           f = "%2d"
-          f =
-            case d
-            when holiday?  then f.send(@colors[:holiday])
-            when sunday?   then f.send(@colors[:sunday])
-            when saturday? then f.send(@colors[:saturday])
-            else f
-            end
-          f = f.send(@colors[:today]) if today?[d]
-        
+          f = case d
+              when holiday?  then f.send(@colors[:holiday])
+              when sunday?   then f.send(@colors[:sunday])
+              when saturday? then f.send(@colors[:saturday])
+              else f
+              end
+          f = today_format(f) if today?[d]
           formaty f, d.day
         end.join(" ")
       }
@@ -93,8 +91,13 @@ module Caline
     end
 
     def holiday?
-      return nil unless @holidays
-      ->d{ @holidays.has_key?(d) }
+      return nil unless @@holidays[@year]
+      ->d{ @@holidays[@year].has_key?(d) }
+    end
+
+    def today_format(f)
+      c = Array(@colors[:today])
+      c.inject(f) { |mem, c| mem = mem.send(c) }
     end
   end
 end
