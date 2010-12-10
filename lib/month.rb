@@ -8,7 +8,7 @@ module Caline
   String.send(:include, Term::ANSIColor)
 
   class Month
-    @@holidays = {}
+    @@holidays = Hash.new{ |h, k| h[k] = {} }
     attr_reader :year, :month, :last, :colors
     def initialize(year, month, colors={})
       @year = year || Date.today.year
@@ -18,6 +18,7 @@ module Caline
       @colors = { title: [:green,:yellow], today: [:green, :underline],
                   saturday: :cyan, sunday: :magenta, holiday: :red }
       @colors.update(colors)
+      @code = nil
     end
 
     def dates
@@ -31,9 +32,11 @@ module Caline
     end
 
     alias formaty format
-    def format(style=:week, from=0, form=mono_proc)
+    def format(style=:week, from=0, color=false)
+      form = color ? color_proc : mono_proc
       case style
       when :week
+        header(from, color) +
         dates_by_week(from).map { |w| form[w] }.join("\n")
       when :month
         form[dates]
@@ -42,15 +45,17 @@ module Caline
     end
 
     def color_format(style=:week, from=0)
-      format(style, from, color_proc)
+      format(style, from, true)
     end
 
     def colors=(colors)
       @colors.update(colors)
     end
 
-    def holidays(code=:ja_ja)
-      @@holidays[@year] ||= GCalendar.new(@year).holidays(code)
+    # need to set this before formatting
+    def holidays=(code)
+      @code = code
+      @@holidays[@year][@code] ||= GCalendar.new(@year).holidays(@code)
     end
 
     private
@@ -65,15 +70,15 @@ module Caline
     def color_proc
       ->w{
         w.map do |d|
-          f = "%2d"
-          f = case d
-              when holiday?  then f.send(@colors[:holiday])
-              when sunday?   then f.send(@colors[:sunday])
-              when saturday? then f.send(@colors[:saturday])
-              else f
-              end
-          f = today_format(f) if today?[d]
-          formaty f, d.day
+          str = "%2d"
+          str = case d
+                when holiday?  then str.send(@colors[:holiday])
+                when sunday?   then str.send(@colors[:sunday])
+                when saturday? then str.send(@colors[:saturday])
+                else str
+                end
+          str = today_format(str) if today?[d]
+          formaty str, d.day
         end.join(" ")
       }
     end
@@ -91,13 +96,24 @@ module Caline
     end
 
     def holiday?
-      return nil unless @@holidays[@year]
-      ->d{ @@holidays[@year].has_key?(d) }
+      return nil unless @@holidays[@year][@code]
+      ->d{ @@holidays[@year][@code].has_key?(d) }
     end
 
-    def today_format(f)
-      c = Array(@colors[:today])
-      c.inject(f) { |mem, c| mem = mem.send(c) }
+    def today_format(str)
+      attrs = Array(@colors[:today])
+      attrs.inject(str) { |s, color| s = s.send(color) }
+    end
+
+    def header(from, color)
+      weeks = " " + %w(S M T W T F S).rotate(from).join("  ")
+      title = @first.strftime("%B %Y").center(weeks.size)
+      if color
+        m, y = colors[:title]
+        "#{title}\n#{weeks}\n".sub(/(\w+)\s(\d{4})/){ "#{$1.send(m)} #{$2.send(y)}" }
+      else
+        "#{title}\n#{weeks}\n"
+      end
     end
   end
 end

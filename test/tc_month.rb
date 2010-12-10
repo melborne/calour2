@@ -67,7 +67,12 @@ class TestMonth < Test::Unit::TestCase
   def test_holidays
     months = (1..12).map { |m| Caline::Month.new(2011, m) }
     months.each do |mon|
-      mon.holidays
+      mon.holidays = :ja_ja
+      puts
+      puts mon.color_format
+    end
+    months.each do |mon|
+      mon.holidays = :us
       puts
       puts mon.color_format
     end
