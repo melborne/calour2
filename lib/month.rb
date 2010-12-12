@@ -10,13 +10,14 @@ module Caline
   class Month
     @@holidays = Hash.new{ |h, k| h[k] = {} }
     attr_reader :year, :month, :last, :colors
+
     def initialize(year, month, colors={})
       @year = year || Date.today.year
       @month = month || Date.today.mon
       @first = Date.new(@year, @month, 1)
       @last = last_date(@year, @month)
-      @colors = { title: [:green,:yellow], today: [:green, :underline],
-                  saturday: :cyan, sunday: :magenta, holiday: :red }
+      @colors = { year: :yellow, month: :green, today: [:green, :underline],
+                  saturday: :cyan, sunday: :magenta, holiday: :red, neighbor: :black }
       @colors.update(colors)
       @code = nil
     end
@@ -37,7 +38,7 @@ module Caline
       case style
       when :week
         header(from, color) +
-        dates_by_week(from).map { |w| form[w] }.join("\n")
+        dates_by_week(from).map { |w| form[w] }
       when :month
         form[dates]
       else raise ArgumentError
@@ -72,6 +73,7 @@ module Caline
         w.map do |d|
           str = "%2d"
           str = case d
+                when neighbor? then str.send(*@colors[:neighbor] || [:replace, "  "])
                 when holiday?  then str.send(@colors[:holiday])
                 when sunday?   then str.send(@colors[:sunday])
                 when saturday? then str.send(@colors[:saturday])
@@ -100,6 +102,10 @@ module Caline
       ->d{ @@holidays[@year][@code].has_key?(d) }
     end
 
+    def neighbor?
+      ->d{ d.mon != @month }
+    end
+
     def today_format(str)
       attrs = Array(@colors[:today])
       attrs.inject(str) { |s, color| s = s.send(color) }
@@ -107,13 +113,11 @@ module Caline
 
     def header(from, color)
       weeks = " " + %w(S M T W T F S).rotate(from).join("  ")
-      title = @first.strftime("%B %Y").center(weeks.size)
+      year, month = %w(%Y %B).map { |f| @first.strftime(f).center(weeks.size) }
       if color
-        m, y = colors[:title]
-        "#{title}\n#{weeks}\n".sub(/(\w+)\s(\d{4})/){ "#{$1.send(m)} #{$2.send(y)}" }
-      else
-        "#{title}\n#{weeks}\n"
+        year, month = year.send(@colors[:year]), month.send(@colors[:month])
       end
+      [year, month, weeks]
     end
   end
 end
