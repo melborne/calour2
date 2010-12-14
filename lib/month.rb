@@ -22,14 +22,14 @@ module Caline
       @code = nil
     end
 
-    def dates
-      (@first..@last).to_a
+    def dates(from=0, pre=true, pos=true)
+      pre = pre ? (1..(@first.wday-from)%7).map { |i| @first - i }.reverse : []
+      pos = pos ? (1..(6-@last.wday+from)%7).map { |i| @last + i } : []
+      pre + (@first..@last).to_a + pos
     end
   
     def dates_by_week(from=0)
-      pre = (1..(@first.wday-from)%7).map { |i| @first - i }.reverse
-      pos = (1..(6-@last.wday+from)%7).map { |i| @last + i }
-      (pre + dates + pos).each_slice(7).to_a
+      dates(from).each_slice(7)
     end
 
     alias formaty format
@@ -37,10 +37,11 @@ module Caline
       form = color ? color_proc : mono_proc
       case style
       when :week
-        header(from, color) +
+        header(from, color, :block) +
         dates_by_week(from).map { |w| form[w] }
       when :month
-        form[dates]
+        header(from, color, :line) +
+        Array( form[dates from, true, false] )
       else raise ArgumentError
       end
     end
@@ -65,7 +66,16 @@ module Caline
     end
 
     def mono_proc
-      ->w{ w.map{ |d| formaty "%2d", d.day }.join(" ") }
+      ->w{
+          w.map do |d|
+            str = "%2d"
+            str = case d
+                  when neighbor? then str.replace "  "
+                  else str
+                  end
+           formaty str, d.day
+        end.join(" ")
+      }
     end
 
     def color_proc
@@ -111,13 +121,21 @@ module Caline
       attrs.inject(str) { |s, color| s.send(color) }
     end
 
-    def header(from, color)
-      weeks = " " + %w(S M T W T F S).rotate(from).join("  ")
+    def header(from, color, style)
+      weeks = week_label(from, style)
       year, month = %w(%Y %B).map { |f| @first.strftime(f).center(weeks.size) }
       if color
         year, month = year.send(@colors[:year]), month.send(@colors[:month])
       end
       [year, month, weeks]
+    end
+
+    def week_label(from, style)
+      weeks = " " + %w(S M T W T F S).rotate(from).join("  ")
+      case style
+      when :block then weeks
+      when :line  then (weeks + " ") * 5
+      end
     end
   end
 end

@@ -15,16 +15,27 @@ module Caline
     
     alias formaty format
     def format(style=:week, from=0, color=false)
-      out = []
-      @months.each_slice(3) do |gr|
-        left, center, right = gr.map do |mon|
-          mon.holidays = @holidays if @holidays
-          mon.format(:week, 0, color)[1..-1]
+      out, year_label = [], nil
+      case style
+      when :week
+        @months.each_slice(3) do |gr|
+          left, center, right = gr.map do |mon|
+            mon.holidays = @holidays if @holidays
+            mon.format(:week, from, color)
+          end
+          left, center, right = align_size(left, center, right)
+          year_label, *body = left.zip(center, right).map { |line| line.join("  ") }
+          out << body
         end
-        left, center, right = align_size(left, center, right)
-        out << left.zip(center, right).map { |line| line.join("  ") }
+        out.unshift year_label.sub(/(\d{4})(.+\d{4}.+)(\d{4})/, '    \2    ')
+      when :month
+        @months.each_with_index do |mon, i|
+          mon.colors = {neighbor: :black}
+          year_label, *body = mon.format(:month, from, color)
+          out << body
+        end
+        out.unshift year_label
       end
-      out.unshift year_label(color)
     end
 
     def color_format(style=:week, from=0)

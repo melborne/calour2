@@ -18,8 +18,8 @@ class TestMonth < Test::Unit::TestCase
   end
 
   def test_dates
-    assert_equal((1..28).to_a, Caline::Month.new(2011, 2).dates.map(&:day))
-    assert_equal((1..31).to_a, @m.dates.map(&:day))
+    assert_equal((1..28).to_a, Caline::Month.new(2011, 2).dates(0, false, false).map(&:day))
+    assert_equal((1..31).to_a, @m.dates(0, false, false).map(&:day))
   end
 
   def test_dates_by_week
