@@ -1,6 +1,6 @@
 require "test/unit"
 
-require_relative "../lib/year"
+require_relative "../lib/caline"
 
 class TestYear < Test::Unit::TestCase
   def setup

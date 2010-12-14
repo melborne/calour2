@@ -1,13 +1,9 @@
 #!/usr/bin/env ruby
 #-*-encoding: utf-8-*-
-require "date"
-require "term/ansicolor"
-require_relative "gcalendar"
-
+require_relative "column"
 module Caline
-  String.send(:include, Term::ANSIColor)
-
   class Month
+    include Column
     @@holidays = Hash.new{ |h, k| h[k] = {} }
     attr_reader :year, :month, :last, :colors
 
@@ -41,6 +37,9 @@ module Caline
       when :month
         header(from, color, :line) +
         Array( form[dates from, true, false] )
+      when :week3
+        months = [self-1, self, self+1]
+        three_column_form[months, from, color]
       else raise ArgumentError
       end
     end
@@ -57,6 +56,16 @@ module Caline
     def holidays=(code)
       @code = code
       @@holidays[@year][@code] ||= GCalendar.new(@year).holidays(@code)
+    end
+
+    def +(month)
+      mon = @first.next_month(month)
+      Month.new(mon.year, mon.mon, @colors)
+    end
+
+    def -(month)
+      mon = @first.prev_month(month)
+      Month.new(mon.year, mon.mon, @colors)
     end
 
     private

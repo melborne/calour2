@@ -1,6 +1,6 @@
 require "test/unit"
 
-require_relative "../lib/month"
+require_relative "../lib/caline"
 
 class TestMonth < Test::Unit::TestCase
   def setup
@@ -54,6 +54,8 @@ class TestMonth < Test::Unit::TestCase
     puts @m.color_format(:week, 0)
     puts @m.color_format(:week, 1)
     puts @m.color_format(:month, 1)
+    puts @m.color_format(:week3)
+    puts Caline::Month.new(2008, 1).color_format(:week3)
   end
   
   def test_colors
