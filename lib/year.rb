@@ -7,33 +7,28 @@ module Caline
   class Year
     @@holidays = Hash.new{ |h, k| h[k] = {} }
     @@month_width = 20
-    def initialize(year)
+    def initialize(year, opts={})
       @year = year
-      @months = (1..12).map { |m| Caline::Month.new(@year, m, neighbor: nil) }
+      @holidays = opts.delete(:holidays)
+      @months = (1..12).map { |m| Caline::Month.new(@year, m, opts) }
     end
     
-    def holidays=(code)
-      @code = code
-      @@holidays[@year][@code] ||= Caline::GCalendar.new(@year).holidays(@code)
-    end
-
-    def holidays
-      @@holidays[@year]
-    end
-
     alias formaty format
     def format(style=:week, from=0, color=false)
       out = []
       @months.each_slice(3) do |gr|
         left, center, right = gr.map do |mon|
-          mon.holidays=:ja_ja
-          mon.color_format(:week, 0)[1..-1]
+          mon.holidays = @holidays if @holidays
+          mon.format(:week, 0, color)[1..-1]
         end
         left, center, right = align_size(left, center, right)
         out << left.zip(center, right).map { |line| line.join("  ") }
       end
-      year_label = "#{@year}".center(@@month_width*3+4).yellow
-      out.unshift year_label
+      out.unshift year_label(color)
+    end
+
+    def color_format(style=:week, from=0)
+      format(style, from, true)
     end
 
     private
@@ -46,6 +41,11 @@ module Caline
         args[1] << " " * @@month_width
       end
       args
+    end
+
+    def year_label(color)
+      label = "#{@year}".center(@@month_width*3+4)
+      color ? label.yellow : label
     end
     
   end

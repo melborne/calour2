@@ -17,7 +17,7 @@ module Caline
       @first = Date.new(@year, @month, 1)
       @last = last_date(@year, @month)
       @colors = { year: :yellow, month: :green, today: [:green, :underline],
-                  saturday: :cyan, sunday: :magenta, holiday: :red, neighbor: :black }
+                  saturday: :cyan, sunday: :magenta, holiday: :red, neighbor:nil }
       @colors.update(colors)
       @code = nil
     end
@@ -108,7 +108,7 @@ module Caline
 
     def today_format(str)
       attrs = Array(@colors[:today])
-      attrs.inject(str) { |s, color| s = s.send(color) }
+      attrs.inject(str) { |s, color| s.send(color) }
     end
 
     def header(from, color)

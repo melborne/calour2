@@ -2,14 +2,13 @@
 #-*-encoding: utf-8-*-
 require_relative "../lib/month"
 require_relative "../lib/year"
-require "termcolor"
 
 year, mon = ARGV.map(&:to_i)
-unless mon
-  year = year || Date.today.year
-  cal = Caline::Year.new(year)
-  puts cal.format
+if year && !mon
+  cal = Caline::Year.new(year, holidays: :ja_ja)
+  puts cal.color_format
 else
   cal = Caline::Month.new(year, mon)
-  puts cal.format
+  cal.holidays = :ja_ja
+  puts cal.color_format
 end
