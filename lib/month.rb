@@ -12,8 +12,7 @@ module Caline
     attr_reader :year, :month, :last, :colors
 
     def initialize(year, month, colors={})
-      @year = year || Date.today.year
-      @month = month || Date.today.mon
+      @year, @month = year, month
       @first = Date.new(@year, @month, 1)
       @last = last_date(@year, @month)
       @colors = { year: :yellow, month: :green, today: [:green, :underline],
