@@ -1,9 +1,10 @@
 #!/usr/bin/env ruby
 #-*-encoding: utf-8-*-
 require_relative "column"
+
 module Caline
   class Month
-    include Column
+    include ColumnForm
     @@holidays = Hash.new{ |h, k| h[k] = {} }
     attr_reader :year, :month, :last, :colors
 
@@ -23,29 +24,31 @@ module Caline
       pre + (@first..@last).to_a + pos
     end
   
-    def dates_by_week(from=0)
+    def dates_by_block(from=0)
       dates(from).each_slice(7)
     end
 
     alias formaty format
-    def format(style=:week, from=0, color=false)
-      form = color ? color_proc : mono_proc
-      case style
-      when :week
-        header(from, color, :block) +
-        dates_by_week(from).map { |w| form[w] }
-      when :month
-        header(from, color, :line) +
-        Array( form[dates from, true, false] )
-      when :week3
-        months = [self-1, self, self+1]
-        three_column_form[months, from, color]
-      else raise ArgumentError
-      end
+    def format(style=:block, from=0, color=false, footer=true)
+      formatter = color ? color_proc : mono_proc
+      body =
+        case style
+        when :block
+          header(from, color, :block) +
+          dates_by_block(from).map { |w| formatter[w] }
+        when :line
+          header(from, color, :line) +
+          Array( formatter[dates from, true, false] )
+        when :block3
+          months = [self-1, self, self+1]
+          three_columns_formatter[months, from, color]
+        else raise ArgumentError
+        end
+      footer ? body + holiday_names(style==:block3 ? months.map(&:month) : Array(@month)) : body
     end
 
-    def color_format(style=:week, from=0)
-      format(style, from, true)
+    def color_format(style=:block, from=0, footer=true)
+      format(style, from, true, footer)
     end
 
     def colors=(colors)
@@ -60,15 +63,26 @@ module Caline
 
     def +(month)
       mon = @first.next_month(month)
-      Month.new(mon.year, mon.mon, @colors)
+      m = Month.new(mon.year, mon.mon, @colors)
+      set_holiday(m)
     end
 
     def -(month)
       mon = @first.prev_month(month)
-      Month.new(mon.year, mon.mon, @colors)
+      m = Month.new(mon.year, mon.mon, @colors)
+      set_holiday(m)
     end
 
     private
+    # set holidays opt if base month has set holidays
+    def set_holiday(mon)
+      if @@holidays[@year][@code]
+        mon.holidays = @code; mon
+      else
+        mon
+      end
+    end
+
     def last_date(year, month, day=[28, 29, 30, 31])
       Date.new(year, month, day.pop) rescue retry
     end
@@ -144,6 +158,12 @@ module Caline
       when :block then weeks
       when :line  then (weeks + " ") * 5
       end
+    end
+
+    def holiday_names(months)
+      return [] unless @@holidays[@year][@code]
+      @@holidays[@year][@code].select { |d, _| months.include? d.mon }.sort_by { |d, _| d }
+                              .map { |date, name| date.strftime('%_m/%_d').yellow + ": " + name.green }
     end
   end
 end

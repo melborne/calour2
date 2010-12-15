@@ -22,7 +22,7 @@ class TestMonth < Test::Unit::TestCase
     assert_equal((1..31).to_a, @m.dates(0, false, false).map(&:day))
   end
 
-  def test_dates_by_week
+  def test_dates_by_block
     f2010_12_from0 = [
       [28, 29, 30, 1, 2, 3, 4],
       [5, 6, 7, 8, 9, 10, 11],
@@ -37,46 +37,66 @@ class TestMonth < Test::Unit::TestCase
       [20, 21, 22, 23, 24, 25, 26],
       [27, 28, 29, 30, 31, 1, 2]
     ]
-    assert_equal(f2010_12_from0, @m.dates_by_week.map{ |w| w.map(&:day) })
-    assert_equal(f2010_12_from1, @m.dates_by_week(1).map{ |w| w.map(&:day) })
+    assert_equal(f2010_12_from0, @m.dates_by_block.map{ |w| w.map(&:day) })
+    assert_equal(f2010_12_from1, @m.dates_by_block(1).map{ |w| w.map(&:day) })
   end
 
-  def test_format
-    puts
-    puts @m.format
-    puts
-    puts @m.format(:week, 1)
-    puts
-    puts @m.format(:month)
-  end
+  #def test_format
+    #puts
+    #puts @m.format
+    #puts
+    #puts @m.format(:block, 1)
+    #puts
+    #puts @m.format(:line)
+  #end
   
-  def test_color_format
-    puts @m.color_format(:week, 0)
-    puts @m.color_format(:week, 1)
-    puts @m.color_format(:month, 1)
-    puts @m.color_format(:week3)
-    puts Caline::Month.new(2008, 1).color_format(:week3)
-  end
+  #def test_color_format
+    #puts @m.color_format(:block, 0)
+    #puts @m.color_format(:block, 1)
+    #puts @m.color_format(:line, 1)
+    #puts @m.color_format(:block3)
+  #end
   
-  def test_colors
-    m = Caline::Month.new(2011, 2, sunday: :yellow, saturday: :green)
-    puts
-    puts m.color_format(:week, 0)
-    m.colors = {sunday: :red, saturday: :blue}
-    puts m.color_format(:month, 1)
-  end
+  #def test_colors
+    #m = Caline::Month.new(2011, 2, sunday: :yellow, saturday: :green)
+    #puts
+    #puts m.color_format(:block, 0)
+    #m.colors = {sunday: :red, saturday: :blue}
+    #puts m.color_format(:line, 1)
+  #end
 
-  def test_holidays
-    months = (1..12).map { |m| Caline::Month.new(2011, m) }
-    months.each do |mon|
-      mon.holidays = :ja_ja
-      puts
-      puts mon.color_format
-    end
-    months.each do |mon|
-      mon.holidays = :us
-      puts
-      puts mon.color_format
-    end
+  #def test_holidays
+    #months = (1..12).map { |m| Caline::Month.new(2011, m) }
+    #months.each do |mon|
+      #mon.holidays = :ja_ja
+      #puts
+      #puts mon.color_format
+    #end
+    #months.each do |mon|
+      #mon.holidays = :us
+      #puts
+      #puts mon.color_format
+    #end
+  #end
+  #
+  #def test_holiday_label_with_different_country
+    #m = Caline::Month.new(2010, 4)
+    #puts m.color_format(:block, 0)
+    #m.holidays = :ja_ja
+    #puts m.color_format(:block, 0)
+    #m.holidays = :us
+    #puts m.color_format(:block, 0)
+    #m.holidays = :au
+    #puts m.color_format(:block, 0)
+    #puts 'no label'
+    #puts m.color_format(:block, 0, false)
+  #end
+
+  def test_holiday_label_with_different_style
+    m = Caline::Month.new(2010, 12)
+    m.holidays = :ja_ja
+    puts m.color_format(:block, 0)
+    puts m.color_format(:line, 0)
+    puts m.color_format(:block3, 0)
   end
 end

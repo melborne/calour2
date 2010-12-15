@@ -3,7 +3,7 @@
 require_relative "column"
 module Caline
   class Year
-    include Column
+    include ColumnForm
     def initialize(year, opts={})
       @year = year
       @holidays = opts.delete(:holidays)
@@ -11,23 +11,23 @@ module Caline
     end
     
     alias formaty format
-    def format(style=:week, from=0, color=false)
+    def format(style=:block, from=0, color=false, ho_name=true)
       out, year_label = [], nil
       case style
-      when :week
-        three_column_form[@months, from, color]
-      when :month
+      when :block
+        three_columns_formatter[@months, from, color, ho_name]
+      when :line
         @months.each_with_index do |mon, i|
           mon.colors = {neighbor: :black}
-          year_label, *body = mon.format(:month, from, color)
+          year_label, *body = mon.format(:line, from, color, ho_name)
           out << body
         end
         out.unshift year_label
       end
     end
 
-    def color_format(style=:week, from=0)
-      format(style, from, true)
+    def color_format(style=:block, from=0, ho_name=true)
+      format(style, from, true, ho_name)
     end
   end
 end

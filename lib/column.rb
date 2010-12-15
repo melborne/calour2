@@ -1,12 +1,11 @@
 module Caline
-  module Column
-    def three_column_form
+  module ColumnForm
+    def three_columns_formatter
       lambda do |months, from, color|
         out, year_label = [], nil
         months.each_slice(3) do |gr|
           left, center, right = gr.map do |mon|
-            mon.holidays = @holidays if @holidays
-            mon.format(:week, from, color)
+            mon.format(:block, from, color, false)
           end
           left, center, right = align_size(left, center, right)
           year_label, *body = left.zip(center, right).map { |line| line.join("  ") }

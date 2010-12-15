@@ -8,13 +8,13 @@ class TestYear < Test::Unit::TestCase
   end
 
   def test_format_with_weekline
-    puts @y2010.format(:week, 1)
-    puts @y2010.color_format(:week)
+    puts @y2010.format(:block, 1)
+    puts @y2010.color_format(:block)
   end
 
   def test_fromat_with_monthline
-    puts @y2010.format(:month)
-    puts @y2010.color_format(:month, 1)
+    puts @y2010.format(:line)
+    puts @y2010.color_format(:line, 1)
   end
 
   def test_color_options
