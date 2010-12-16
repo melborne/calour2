@@ -35,7 +35,7 @@ module Caline
         case style
         when :block
           header(from, color, :block) +
-          dates_by_block(from).map { |w| formatter[w] }
+          dates_by_block(from).map { |aweek| formatter[aweek] }
         when :line
           header(from, color, :line) +
           Array( formatter[dates from, true, false] )
@@ -147,7 +147,8 @@ module Caline
       weeks = week_label(from, style)
       year, month = %w(%Y %B).map { |f| @first.strftime(f).center(weeks.size) }
       if color
-        year, month = year.send(@colors[:year]), month.send(@colors[:month])
+        year.sub!(/\d{4}/) { $&.send(@colors[:year]) }
+        month.sub!(/\w+/) { $&.send(@colors[:month]) }
       end
       [year, month, weeks]
     end
