@@ -98,5 +98,9 @@ class TestMonth < Test::Unit::TestCase
     puts m.color_format(:block, 0)
     puts m.color_format(:line, 0)
     puts m.color_format(:block3, 0)
+    m2 = Caline::Month.new(2009, 5)
+    m2.holidays = :ja_ja
+    puts m2.color_format(:block, 0)
+    puts m2.color_format(:block3, 1)
   end
 end

@@ -44,7 +44,7 @@ module Caline
           three_columns_formatter[months, from, color]
         else raise ArgumentError
         end
-      footer ? body + holiday_names(style==:block3 ? months.map(&:month) : Array(@month)) : body
+      footer ? body + holiday_names(style==:block3 ? months : Array(self)) : body
     end
 
     def color_format(style=:block, from=0, footer=true)
@@ -161,9 +161,16 @@ module Caline
     end
 
     def holiday_names(months)
-      return [] unless @@holidays[@year][@code]
-      @@holidays[@year][@code].select { |d, _| months.include? d.mon }.sort_by { |d, _| d }
-                              .map { |date, name| date.strftime('%_m/%_d').yellow + ": " + name.green }
+      months.inject([]) { |mem, mon| 
+        holidays = @@holidays[mon.year][@code].select { |d, _| d.mon == mon.month }
+        if holidays.empty?
+          mem
+        else
+          mem << holidays.sort_by { |d, _| d }
+                  .map { |date, name| date.strftime('%_m/%_d').yellow + ": " + name.green }
+                  .join
+        end
+      }
     end
   end
 end
