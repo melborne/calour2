@@ -162,13 +162,13 @@ module Caline
 
     def holiday_names(months)
       months.inject([]) { |mem, mon| 
-        holidays = @@holidays[mon.year][@code].select { |d, _| d.mon == mon.month }
-        if holidays.empty?
-          mem
+        holidays = @@holidays[mon.year][@code]
+        if holidays && !(selected = holidays.select { |d, _| d.mon == mon.month }).empty?
+          mem << selected.sort_by { |d, _| d }
+                         .map { |date, name| date.strftime('%_m/%_d').yellow + ": " + name.green }
+                         .join
         else
-          mem << holidays.sort_by { |d, _| d }
-                  .map { |date, name| date.strftime('%_m/%_d').yellow + ": " + name.green }
-                  .join
+          mem
         end
       }
     end
