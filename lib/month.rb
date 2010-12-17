@@ -61,6 +61,10 @@ module Caline
       @@holidays[@year][@code] ||= GCalendar.new(@year).holidays(@code)
     end
 
+    def holidays
+      @@holidays
+    end
+
     def +(month)
       mon = @first.next_month(month)
       m = Month.new(mon.year, mon.mon, @colors)
