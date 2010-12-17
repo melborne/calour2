@@ -29,7 +29,7 @@ module Caline
     end
 
     alias formaty format
-    def format(style=:block, from=0, color=false, footer=true)
+    def format(style=:block, from=0, color=false, footer=false)
       formatter = color ? color_proc : mono_proc
       body =
         case style
@@ -38,7 +38,7 @@ module Caline
           dates_by_block(from).map { |aweek| formatter[aweek] }
         when :line
           header(from, color, :line) +
-          Array( formatter[dates from, true, false] )
+          Array( formatter[dates] )
         when :block3
           months = [self-1, self, self+1]
           three_columns_formatter[months, from, color]
@@ -47,7 +47,7 @@ module Caline
       footer ? body + holiday_names(style==:block3 ? months : Array(self)) : body
     end
 
-    def color_format(style=:block, from=0, footer=true)
+    def color_format(style=:block, from=0, footer=false)
       format(style, from, true, footer)
     end
 
