@@ -1,18 +1,16 @@
 module Caline
   module ColumnForm
-    def three_columns_formatter
-      lambda do |months, from, color|
-        out, year_label = [], nil
-        months.each_slice(3) do |gr|
-          left, center, right = gr.map do |mon|
-            mon.format(:block, from, color, false)
-          end
-          left, center, right = align_size(left, center, right)
-          year_label, *body = left.zip(center, right).map { |line| line.join("  ") }
-          out << body
+    def three_columns_formatter(months, from, color)
+      out, year_label = [], nil
+      months.each_slice(3) do |gr|
+        left, center, right = gr.map do |mon|
+          mon.format(:block, from, color, false)
         end
-        out.unshift year_label.sub(/(\d{4})(.+\d{4}.+)(\d{4})/, '    \2    ')
+        left, center, right = align_size(left, center, right)
+        year_label, *body = left.zip(center, right).map { |line| line.join("  ") }
+        out << body
       end
+      out.unshift year_label.sub(/(\d{4})(.+\d{4}.+)(\d{4})/, '    \2    ')
     end
 
     # align height size to max one

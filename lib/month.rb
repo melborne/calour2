@@ -41,7 +41,7 @@ module Caline
           Array( formatter[dates] )
         when :block3
           months = [self-1, self, self+1]
-          three_columns_formatter[months, from, color]
+          three_columns_formatter(months, from, color)
         else raise ArgumentError
         end
       footer ? body + holiday_names(style==:block3 ? months : Array(self)) : body
@@ -57,8 +57,9 @@ module Caline
 
     # need to set this before formatting
     def holidays=(code)
-      @code = code
-      @@holidays[@year][@code] ||= GCalendar.new(@year).holidays(@code)
+      if @code = code
+        @@holidays[@year][@code] ||= GCalendar.new(@year).holidays(@code)
+      end
     end
 
     def holidays
@@ -68,18 +69,18 @@ module Caline
     def +(month)
       mon = @first.next_month(month)
       m = Month.new(mon.year, mon.mon, @colors)
-      set_holiday(m)
+      set_holiday_for_neighbor(m)
     end
 
     def -(month)
       mon = @first.prev_month(month)
       m = Month.new(mon.year, mon.mon, @colors)
-      set_holiday(m)
+      set_holiday_for_neighbor(m)
     end
 
     private
     # set holidays opt if base month has set holidays
-    def set_holiday(mon)
+    def set_holiday_for_neighbor(mon)
       if @@holidays[@year][@code]
         mon.holidays = @code; mon
       else

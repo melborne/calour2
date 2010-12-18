@@ -25,7 +25,7 @@ module Caline
       body =
       case style
       when :block
-        body = three_columns_formatter[@months, from, color]
+        body = three_columns_formatter(@months, from, color)
       when :line
         out, year_label = [], nil
         @months.each do |mon|
