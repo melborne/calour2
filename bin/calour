@@ -1,56 +1,6 @@
 #!/usr/bin/env ruby
 #-*-encoding: utf-8-*-
-require "optparse"
-require "date"
 require_relative "../lib/calour"
-Version = Calour::VERSION
 
-def parse_argument(args)
-  mon, year = args.sort
-  if mon.nil? && year.nil?
-    mon, year = Date.today.mon, Date.today.year
-  elsif year.nil?
-    if mon >= 100
-      mon, year = year, mon
-    else
-      year = Date.today.year
-    end
-  end
-  mon, year = nil, Date.today.year if @y_opt
-  return mon, year
-end
-
-def banner
-  <<-EOS
-  calour - displays a calendar with color
-  calour [-3lmnty] [-c [country_code]] [[month] year]
-  EOS
-end
-
-opt = OptionParser.new(banner)
-OPTS = {style: :block, from:0, color:true, holidays: :ja_ja, footer:false}
-
-opt.on('-3', '3 months block mode')   { |v| OPTS[:style] = :block3 }
-opt.on('-l', 'line mode')             { |v| OPTS[:style] = :line }
-opt.on('-m', 'monday first')          { |v| OPTS[:from] = 1 }
-opt.on('-n', 'non-color mode')        { |v| OPTS[:color] = false }
-opt.on('-c [COUNTRY_CODE]' , 'holidays mark on/off. no code let it off. ex. ja us au..') { |v|
-  v = v.sub(/^:/, '').intern unless v.nil?
-  OPTS[:holidays] = v
-}
-opt.on('-t', 'append holiday titles') { |v| OPTS[:footer] = true }
-opt.on('-y', 'this year')             { |v| @y_opt = true }
-
-opt.parse! ARGV rescue opt.parse! ['-h']
-
-mon, year = parse_argument ARGV.map(&:to_i)
-
-if year > 100 && !mon
-  cal = Calour::Year.new(year, holidays: OPTS[:holidays])
-  puts cal.format(OPTS[:style], OPTS[:from], OPTS[:color], OPTS[:footer])
-else
-  cal = Calour::Month.new(year, mon)
-  cal.holidays = OPTS[:holidays] if OPTS[:color]
-  puts cal.format(OPTS[:style], OPTS[:from], OPTS[:color], OPTS[:footer])
-end
+Calour.run
 
