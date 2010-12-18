@@ -21,14 +21,15 @@ module Caline
       open URL(country) + PARAM(*build_date_range)
     rescue => e
       STDERR.puts "Failed to retrieve Holiday data by Google Calendar Data API. #{e}"
+      STDERR.puts "Acceptable codes are: #{COUNTRY_ID().keys.join(" ")}"
     end
 
     def URL(country)
       "http://www.google.com/calendar/feeds/" +
-              CGI.escape("#{COUNTRY_ID(country)}") + "/public/full-noattendees?"
+              CGI.escape("#{COUNTRY_ID()[country]}") + "/public/full-noattendees?"
     end
 
-    def COUNTRY_ID(country)
+    def COUNTRY_ID
       base1 = "@holiday.calendar.google.com"
       base2 = "#holiday@group.v.calendar.google.com"
       {
@@ -43,7 +44,7 @@ module Caline
         kr: "en.south_korea#{base2}",
         tw: "en.taiwan#{base2}",
         gb: "en.uk#{base2}"
-       }[country]
+       }
     end
 
     def PARAM(sd, ed)
