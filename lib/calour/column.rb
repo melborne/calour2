@@ -1,4 +1,4 @@
-module Caline
+module Calour
   module ColumnForm
     def three_columns_formatter(months, from, color)
       out, year_label = [], nil

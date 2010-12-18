@@ -2,7 +2,7 @@
 #-*-encoding: utf-8-*-
 require_relative "column"
 
-module Caline
+module Calour
   class Month
     include ColumnForm
     @@holidays = Hash.new{ |h, k| h[k] = {} }

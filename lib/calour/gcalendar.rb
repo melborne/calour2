@@ -6,7 +6,7 @@ require "nokogiri"
 require "cgi"
 require "date"
 
-module Caline
+module Calour
   class GCalendar
     def initialize(year, month=nil)
       @year, @month = year, month
@@ -69,6 +69,6 @@ module Caline
 end
 
 if __FILE__ == $0
-  g = Caline::GCalendar.new(2010, 9)
+  g = Calour::GCalendar.new(2010, 9)
   p g.holidays
 end

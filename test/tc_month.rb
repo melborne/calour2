@@ -2,16 +2,16 @@
 # -*- encoding:utf-8 -*-
 require "test/unit"
 
-require_relative "../lib/caline"
+require_relative "../lib/calour"
 
 class TestMonth < Test::Unit::TestCase
   def setup
-    @m = Caline::Month.new(2010, 12)
+    @m = Calour::Month.new(2010, 12)
     @lasts2010 = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
   end
 
   def test_last_day
-    (1..12).each { |m| assert_equal(@lasts2010[m], Caline::Month.new(2010, m).last.day) }
+    (1..12).each { |m| assert_equal(@lasts2010[m], Calour::Month.new(2010, m).last.day) }
   end
 
   def test_year_month
@@ -20,7 +20,7 @@ class TestMonth < Test::Unit::TestCase
   end
 
   def test_dates
-    assert_equal((1..28).to_a, Caline::Month.new(2011, 2).dates(0, false, false).map(&:day))
+    assert_equal((1..28).to_a, Calour::Month.new(2011, 2).dates(0, false, false).map(&:day))
     assert_equal((1..31).to_a, @m.dates(0, false, false).map(&:day))
     assert_equal([29, 30]+(1..31).to_a, @m.dates(1, true, false).map(&:day))
     assert_equal((1..31).to_a+[1], @m.dates(0, false, true).map(&:day))
@@ -134,11 +134,11 @@ class TestMonth < Test::Unit::TestCase
   end
 
   def test_color_format_with_color_changes
-    m = Caline::Month.new(2011, 2, sunday: :yellow, saturday: :green)
+    m = Calour::Month.new(2011, 2, sunday: :yellow, saturday: :green)
     colors = {12 => 32, 13 => 33}.map { |d, c| /\e\[#{c}m#{d}\e\[0m/ }
     colors.each { |c| assert_match(c, m.color_format(:line).join) }
 
-    m = Caline::Month.new(2010, 12)
+    m = Calour::Month.new(2010, 12)
     m.holidays = :ja_ja
     colors = { year: :cyan, month: :red, today: [:blue, :on_yellow],
                 saturday: :white, sunday: :black, holiday: :blue, neighbor: :black }

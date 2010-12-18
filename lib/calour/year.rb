@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 #-*-encoding: utf-8-*-
 require_relative "column"
-module Caline
+module Calour
   class Year
     include ColumnForm
     @@holidays = Hash.new{ |h, k| h[k] = {} }
     def initialize(year, opts={})
       @year = year
       @code = opts.delete(:holidays)
-      @months = (1..12).map { |m| Caline::Month.new(@year, m, opts) }
+      @months = (1..12).map { |m| Calour::Month.new(@year, m, opts) }
       if @code
         @months.each { |m| m.holidays = @code }
         @@holidays[@year] = @months.first.holidays[@year]

@@ -2,8 +2,8 @@
 #-*-encoding: utf-8-*-
 require "optparse"
 require "date"
-require_relative "../lib/caline"
-Version = Caline::VERSION
+require_relative "../lib/calour"
+Version = Calour::VERSION
 
 def parse_argument(args)
   mon, year = args.sort
@@ -22,8 +22,8 @@ end
 
 def banner
   <<-EOS
-  caline - displays a calendar with color
-  caline [-3lmnty] [-c [country_code]] [[month] year]
+  calour - displays a calendar with color
+  calour [-3lmnty] [-c [country_code]] [[month] year]
   EOS
 end
 
@@ -46,10 +46,10 @@ opt.parse! ARGV rescue opt.parse! ['-h']
 mon, year = parse_argument ARGV.map(&:to_i)
 
 if year > 100 && !mon
-  cal = Caline::Year.new(year, holidays: OPTS[:holidays])
+  cal = Calour::Year.new(year, holidays: OPTS[:holidays])
   puts cal.format(OPTS[:style], OPTS[:from], OPTS[:color], OPTS[:footer])
 else
-  cal = Caline::Month.new(year, mon)
+  cal = Calour::Month.new(year, mon)
   cal.holidays = OPTS[:holidays] if OPTS[:color]
   puts cal.format(OPTS[:style], OPTS[:from], OPTS[:color], OPTS[:footer])
 end

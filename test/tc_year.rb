@@ -1,10 +1,10 @@
 require "test/unit"
 
-require_relative "../lib/caline"
+require_relative "../lib/calour"
 
 class TestYear < Test::Unit::TestCase
   def setup
-    @y2010 = Caline::Year.new(2010)
+    @y2010 = Calour::Year.new(2010)
   end
 
   def test_format_with_block_style
@@ -94,12 +94,12 @@ class TestYear < Test::Unit::TestCase
     "\e[30m28\e[0m \e[30m29\e[0m \e[30m30\e[0m \e[30m31\e[0m  1  2 \e[36m 3\e[0m  \e[35m 1\e[0m  2  3  4  5  6 \e[36m 7\e[0m  \e[35m 1\e[0m  2  3  4  5  6 \e[36m 7\e[0m",
     "\e[35m18\e[0m 19 20 21 22 23 \e[36m24\e[0m  \e[35m22\e[0m 23 24 25 26 27 \e[36m28\e[0m  \e[35m22\e[0m 23 24 25 26 27 \e[36m28\e[0m", "\e[35m25\e[0m 26 27 28 29 30 \e[36m31\e[0m                        \e[35m29\e[0m 30 31 \e[30m 1\e[0m \e[30m 2\e[0m \e[30m 3\e[0m \e[30m 4\e[0m"
     ]
-    format = Caline::Year.new(2009, neighbor: :black).color_format.join
+    format = Calour::Year.new(2009, neighbor: :black).color_format.join
     y2009.each { |line| assert_match(/#{Regexp.escape line}/, format) }
   end
 
   def test_holidays_names
-    y = Caline::Year.new(2010, holidays: :ja_ja)
+    y = Calour::Year.new(2010, holidays: :ja_ja)
     puts y.color_format
   end
 end
