@@ -6,6 +6,7 @@ Version = Calour::VERSION
 
 module Calour::Runner
   OPTS = {style: :block, from:0, color:true, holidays: nil, footer:false}
+  @color_opts = {}
 
   class << self
     def start
@@ -31,6 +32,7 @@ module Calour::Runner
       opt.on('-f')                { |v| OPTS[:footer] = false }
       opt.on('-y')                { |v| @y_opt = true }
       opt.on('-h', '--help')      { |v| puts colored_help; exit }
+      opt.on('--color [COLOR_SET]')  { |v| parse_color v }
 
       opt.parse! ARGV rescue opt.parse! ['-h']
     end
@@ -82,8 +84,10 @@ DESCRIPTION
     end
 
     def colored_help
-      c = %w()
-      help.gsub(/^[A-Z]+/) { $&.green }.gsub(/calour/) { $&.magenta.bold }.gsub(/-[\w\d]+/) { $&.cyan }
+      color = %w(magenta green blue yellow red cyan)
+      help.gsub(/^[A-Z]+/) { $&.green }
+          .gsub(/calour/) { $&.split(//).map.with_index { |chr,i| chr.send color[i] }.join.bold }
+          .gsub(/-[\w\d]+/) { $&.cyan }
     end
 
     def parse_argument(args)
@@ -101,12 +105,27 @@ DESCRIPTION
       return mon, year
     end
 
+    def parse_color(args)
+      h = args.split(/[, ]+/)
+              .inject({}) { |h, arg| k, v = arg.split(':'); h[t_title k] = t_color(v); h }
+      @color_opts.update h
+    end
+
+    def t_title(key)
+      %w(year month today saturday sunday holiday neighbor).detect { |t| t =~ /#{key}/ }.intern
+    end
+
+    def t_color(value)
+      Term::ANSIColor.attributes.detect { |c| c =~ /#{value}/ }
+    end
+
     def print_calendar(mon, year)
       if year > 100 && !mon
-        cal = Calour::Year.new(year, holidays: OPTS[:holidays])
+        opts = @color_opts.merge(holidays: OPTS[:holidays])
+        cal = Calour::Year.new(year, opts)
         puts cal.format(OPTS[:style], OPTS[:from], OPTS[:color], OPTS[:footer])
       else
-        cal = Calour::Month.new(year, mon)
+        cal = Calour::Month.new(year, mon, @color_opts)
         cal.holidays = OPTS[:holidays] if OPTS[:color]
         puts cal.format(OPTS[:style], OPTS[:from], OPTS[:color], OPTS[:footer])
       end
