@@ -37,59 +37,6 @@ module Calour::Runner
       opt.parse! ARGV rescue opt.parse! ['-h']
     end
 
-    def help
-      <<-EOS
-
-NAME
-
-  calour - displays a calendar with color
-
-SYNOPSIS
-
-  calour [-3lmnty] [-c [country_code]] [[month] year]
-
-DESCRIPTION
-
-  The options are as follows:
-
-      -3         3 months block mode
-
-      -l         line mode
-
-      -b         block mode (default)
-
-      -m         monday first
-
-      -s         sunday first (default)
-
-      -n         no color mode
-
-      -k         color mode (default)
-
-      -c country_code
-                 holidays mark on/off. without country code, let it off.
-                 acceptable code: ja us au ja_ja cn fr de it kr tw gb
-
-      -t         append holiday titles
-
-      -f         no holiday titles (default)
-
-      -y         this year
-
-      -h         display this help
-
-      -v         display version
-
-      EOS
-    end
-
-    def colored_help
-      color = %w(magenta green blue yellow red cyan)
-      help.gsub(/^[A-Z]+/) { $&.green }
-          .gsub(/calour/) { $&.split(//).map.with_index { |chr,i| chr.send color[i] }.join.bold }
-          .gsub(/-[\w\d]+/) { $&.cyan }
-    end
-
     def parse_argument(args)
       mon, year = args.sort
       if mon.nil? && year.nil?
@@ -129,6 +76,100 @@ DESCRIPTION
         cal.holidays = OPTS[:holidays] if OPTS[:color]
         puts cal.format(OPTS[:style], OPTS[:from], OPTS[:color], OPTS[:footer])
       end
+    end
+
+    def colored_help
+      attrs = Term::ANSIColor.attributes
+      colors = (attrs*' ')[/bold.*on_white/].split(' ')
+      help.gsub(/^[A-Z].*$/) { $&.green }
+          .gsub(/calour/) { $&.split(//).map.with_index { |chr,i| chr.send colors[i+11] }.join.bold }
+          .gsub(/\B-+[\w\d]+/) { $&.cyan }
+          .gsub(/(?<=\s\s)\w+(?=:\s)/) { $&.cyan }
+          .gsub(/(?<=\s)(#{colors.join('|')})(?=[,)\]\s])/) { $&.send $& }
+    end
+
+    def help
+      <<-EOS
+
+NAME
+
+  calour - displays a calendar with color
+
+SYNOPSIS
+
+  calour [-3lmnty] [-c [country_code]] [--color color_set] [[month] year]
+
+DESCRIPTION
+
+  The options are as follows:
+
+      -3         3 months block mode
+
+      -l         line mode
+
+      -b         block mode (default)
+
+      -m         monday first
+
+      -s         sunday first (default)
+
+      -n         no color mode
+
+      -k         color mode (default)
+
+      -c country_code
+                 holidays mark on/off. without country code, let it off.
+                 acceptable code: ja us au ja_ja cn fr de it kr tw gb
+
+      -t         append holiday titles
+
+      -f         no holiday titles (default)
+
+      -y         this year
+
+      -h         display this help
+
+      -v         display version
+
+COLOR SETTINGS
+
+  Colors can be changed with --color COLOR_SET option. COLOR_SET is constructed
+  as combination of target-color-pairs.
+
+      examples;
+
+        --color year:magenta,today:on_green,holiday:red
+
+        --color mon:yel,hol:blu,nei:bla
+
+        --color 'sat:blue sun:red tod:blink'
+
+  Like examples, each pairs are joined with ','(comma), target and color are
+  joined with ':'(colon). names of targets and colors can be reduced.
+
+  Target names are as follows:
+
+      year:       year label color (default: yellow)
+
+      month:      month label color (default: green)
+
+      today:      today date color (default: green, underline])
+
+      saturday:   saturday dates color (default: cyan)
+
+      sunday:     sunday dates color (default: magenta)
+
+      holiday:    holiday dates color (default: red)
+
+      neightbor:  neighbor months dates color (default: nil)
+
+  Color names are as follows:
+
+      black, red, green, yellow, blue, magenta, cyan, white,
+      on_black, on_red, on_green, on_yellow, on_blue, on_magenta,
+      on_cyan, on_white, bold, underline, blink 
+
+      EOS
     end
   end
 end
