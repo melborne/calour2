@@ -54,16 +54,16 @@ module Calour::Runner
 
     def parse_color(args)
       h = args.split(/[, ]+/)
-              .inject({}) { |h, arg| k, v = arg.split(':'); h[t_title k] = t_color(v); h }
+              .inject({}) { |h, arg| k, v = arg.split(':'); h[t_title k] = t_color(v.split('-')); h }
       @color_opts.update h
     end
 
     def t_title(key)
-      %w(year month today saturday sunday holiday neighbor).detect { |t| t =~ /#{key}/ }.intern
+      %w(year month today saturday sunday holiday neighbor footer).detect { |t| t =~ /#{key}/ }.intern
     end
 
-    def t_color(value)
-      Term::ANSIColor.attributes.detect { |c| c =~ /#{value}/ }
+    def t_color(values)
+      values.inject([]) { |mem, val| mem << Term::ANSIColor.attributes.detect { |c| c =~ /#{val}/ } }
     end
 
     def print_calendar(mon, year)

@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 #-*-encoding: utf-8-*-
 # Google Calendar Data API for retrieving holiday data
 require "open-uri"

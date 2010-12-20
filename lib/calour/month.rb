@@ -1,4 +1,3 @@
-#!/usr/bin/env ruby
 #-*-encoding: utf-8-*-
 require_relative "column"
 
@@ -12,8 +11,8 @@ module Calour
       @year, @month = year, month
       @first = Date.new(@year, @month, 1)
       @last = last_date(@year, @month)
-      @colors = { year: :yellow, month: :green, today: [:green, :underline],
-                  saturday: :cyan, sunday: :magenta, holiday: :red, neighbor:nil }
+      @colors = { year: :yellow, month: :green, today: [:green, :underline], saturday: :cyan,
+                  sunday: :magenta, holiday: :red, neighbor:nil, footer: [:green, :yellow] }
       @colors.update(colors)
       @code = nil
     end
@@ -110,13 +109,14 @@ module Calour
         w.map do |d|
           str = "%2d"
           str = case d
-                when neighbor? then str.send(*@colors[:neighbor] || [:replace, "  "])
-                when holiday?  then str.send(@colors[:holiday])
-                when sunday?   then str.send(@colors[:sunday])
-                when saturday? then str.send(@colors[:saturday])
+                when neighbor?
+                  @colors[:neighbor] ? str.color(@colors[:neighbor]) : str.replace("  ")
+                when holiday?  then str.color(@colors[:holiday])
+                when sunday?   then str.color(@colors[:sunday])
+                when saturday? then str.color(@colors[:saturday])
                 else str
                 end
-          str = today_format(str) if today?[d]
+          str = str.color(@colors[:today]) if today?[d]
           formaty str, d.day
         end.join(" ")
       }
@@ -143,17 +143,12 @@ module Calour
       ->d{ d.mon != @month }
     end
 
-    def today_format(str)
-      attrs = Array(@colors[:today])
-      attrs.inject(str) { |s, color| s.send(color) }
-    end
-
     def header(from, color, style)
       weeks = week_label(from, style)
       year, month = %w(%Y %B).map { |f| @first.strftime(f).center(weeks.size) }
       if color
-        year.sub!(/\d{4}/) { $&.send(@colors[:year]) }
-        month.sub!(/\w+/) { $&.send(@colors[:month]) }
+        year.sub!(/\d{4}/) { $&.color(@colors[:year]) }
+        month.sub!(/\w+/) { $&.color(@colors[:month]) }
       end
       [year, month, weeks]
     end
@@ -171,8 +166,10 @@ module Calour
         holidays = @@holidays[mon.year][@code]
         if holidays && !(selected = holidays.select { |d, _| d.mon == mon.month }).empty?
           mem << selected.sort_by { |d, _| d }
-                         .map { |date, name| date.strftime('%_m/%_d').yellow + ": " + name.green }
-                         .join
+                         .map { |date, name|
+                                date.strftime('%_m/%_d').color(@colors[:footer][0]) +
+                                                ": " + name.color(@colors[:footer][1])
+                         }.join
         else
           mem
         end
