@@ -52,8 +52,11 @@ as combination of target-color-pairs.
 
       --color 'sat:blue sun:red tod:blink'
 
+      --color 'today:blue-on_yellow-blink'
+
 Like examples, each pairs are joined with ','(comma), target and color are
-joined with ':'(colon). names of targets and colors can be reduced.
+joined with ':'(colon). each target accepts multi-color in which colors are
+joined with '-'(see 4th example). names of targets and colors can be reduced.
 
 Target names are as follows:
 
@@ -61,7 +64,7 @@ Target names are as follows:
 
     month:      month label color (default: green)
 
-    today:      today date color (default: green, underline])
+    today:      today date color (default: green, underline)
 
     saturday:   saturday dates color (default: cyan)
 
@@ -70,6 +73,8 @@ Target names are as follows:
     holiday:    holiday dates color (default: red)
 
     neightbor:  neighbor months dates color (default: nil)
+
+    footer:     holiday date and title colors at footer (default: green, yellow)
 
 Color names are as follows:
 

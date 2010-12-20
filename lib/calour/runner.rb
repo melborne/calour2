@@ -156,7 +156,7 @@ COLOR SETTINGS
 
       month:      month label color (default: green)
 
-      today:      today date color (default: green, underline])
+      today:      today date color (default: green, underline)
 
       saturday:   saturday dates color (default: cyan)
 
@@ -165,6 +165,8 @@ COLOR SETTINGS
       holiday:    holiday dates color (default: red)
 
       neightbor:  neighbor months dates color (default: nil)
+
+      footer:     holiday date and title colors at footer (default: green, yellow)
 
   Color names are as follows:
 
