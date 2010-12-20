@@ -29,15 +29,15 @@ module Calour
 
     alias formaty format
     def format(style=:block, from=0, color=false, footer=false)
-      formatter = color ? color_proc : mono_proc
+      formatter = color ? method(:color_formatter) : method(:mono_formatter)
       body =
         case style
         when :block
           header(from, color, :block) +
-          dates_by_block(from).map { |aweek| formatter[aweek] }
+          dates_by_block(from).map { |aweek| formatter.call aweek }
         when :line
           header(from, color, :line) +
-          Array( formatter[dates] )
+          Array( formatter.call dates )
         when :block3
           months = [self-1, self, self+1]
           three_columns_formatter(months, from, color)
@@ -91,35 +91,31 @@ module Calour
       Date.new(year, month, day.pop) rescue retry
     end
 
-    def mono_proc
-      ->w{
-          w.map do |d|
-            str = "%2d"
-            str = case d
-                  when neighbor? then str.replace "  "
-                  else str
-                  end
-           formaty str, d.day
-        end.join(" ")
-      }
+    def mono_formatter(dates)
+      dates.map do |d|
+        str = "%2d"
+        str = case d
+              when neighbor? then str.replace "  "
+              else str
+              end
+        formaty str, d.day
+      end.join(" ")
     end
 
-    def color_proc
-      ->w{
-        w.map do |d|
-          str = "%2d"
-          str = case d
-                when neighbor?
-                  @colors[:neighbor] ? str.color(@colors[:neighbor]) : str.replace("  ")
-                when holiday?  then str.color(@colors[:holiday])
-                when sunday?   then str.color(@colors[:sunday])
-                when saturday? then str.color(@colors[:saturday])
-                else str
-                end
-          str = str.color(@colors[:today]) if today?[d]
-          formaty str, d.day
-        end.join(" ")
-      }
+    def color_formatter(dates)
+      dates.map do |d|
+        str = "%2d"
+        str = case d
+              when neighbor?
+                @colors[:neighbor] ? str.color(@colors[:neighbor]) : str.replace("  ")
+              when holiday?  then str.color(@colors[:holiday])
+              when sunday?   then str.color(@colors[:sunday])
+              when saturday? then str.color(@colors[:saturday])
+              else str
+              end
+        str = str.color(@colors[:today]) if today?[d]
+        formaty str, d.day
+      end.join(" ")
     end
 
     def sunday?

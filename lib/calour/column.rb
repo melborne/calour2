@@ -1,3 +1,5 @@
+# -*- encoding:utf-8 -*-
+
 module Calour::ColumnForm
   def three_columns_formatter(months, from, color)
     out, year_label = [], nil
