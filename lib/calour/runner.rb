@@ -144,8 +144,11 @@ COLOR SETTINGS
 
         --color 'sat:blue sun:red tod:blink'
 
+        --color 'today:blue-on_yellow-blink'
+
   Like examples, each pairs are joined with ','(comma), target and color are
-  joined with ':'(colon). names of targets and colors can be reduced.
+  joined with ':'(colon). each target accepts multi-color in which colors are
+  joined with '-'(see 4th example). names of targets and colors can be reduced.
 
   Target names are as follows:
 
