@@ -1,7 +1,8 @@
 = calour
 
 calour is a cal command alternative, which displays a colored,
-holiday plot calendar with block or line styled.
+holiday plot calendar with block or line styled. Holiday data
+retrieve from Google Calendar Data API.
 
 == SYNOPSIS
 
